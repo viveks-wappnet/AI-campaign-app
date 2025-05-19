@@ -14,4 +14,5 @@ response.json
 test.py
 outputs
 audio
+scenes
 *.mp3

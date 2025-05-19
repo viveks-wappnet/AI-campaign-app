@@ -21,7 +21,7 @@ Your output should be in JSON format with 6-7 creative scenes (total duration �
   {{
     "scene_id": 1,
     "duration": "e.g. 5s",
-    "dialogue": "Voice-over or character dialogue that can be spoken within the scene's duration. Use tone to match the idea: witty, emotional, bold, mysterious, etc. If necessary include dashes (- or —) for short pauses or ellipses (…) for hesitant tones.",
+    "dialogue": "a single line of voice‑over that **fits comfortably** inside that duration (roughly 150 wpm—about 12–15 words for 5 s).",
     "on_screen_text": "Any text appearing on screen: taglines, punchlines, product names, etc.",
     "sub_scenes": [
       {{
@@ -45,6 +45,8 @@ Your output should be in JSON format with 6-7 creative scenes (total duration �
 3. Avoid abstract or artistic terms in sub-scene descriptions (e.g., "montage", "cinematic", "emotion")
 4. The `dialogue` length MUST be 3-4 seconds longer than the scene's `duration` when spoken at a natural pace
 5. Each sub-scene should represent a distinct visual moment that can be matched with a stock video clip
+6. Dialogue must be fully spoken **within** the scene’s duration at a natural pace.
+7. Aim for about **150 words per minute** of speech (e.g., ~13 words for 5 s).
 
 {format_instructions}
 

@@ -1,0 +1,26 @@
+[project]
+name = "video-app"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dotenv>=0.9.9",
+    "groq>=0.24.0",
+    "psycopg2-binary>=2.9.10",
+    "requests>=2.32.3",
+    "fastapi>=0.110.0",
+    "uvicorn>=0.29.0",
+    "pydantic>=2.0.0",
+    "sentence-transformers>=4.1.0",
+    "ipdb>=0.13.13",
+    "keybert>=0.9.0",
+    "ffmpeg-python>=0.2.0",
+    "pyht>=0.1.14",
+    "elevenlabs>=1.59.0",
+    "websocket-client>=1.8.0",
+    "langchain>=0.3.25",
+    "langgraph>=0.4.5",
+    "langchain-groq>=0.3.2",
+    "langchain-core>=0.3.60",
+]

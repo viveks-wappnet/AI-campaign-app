@@ -13,4 +13,5 @@ wheels/
 response.json
 test.py
 outputs
+audio
 *.mp3

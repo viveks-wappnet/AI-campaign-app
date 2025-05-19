@@ -34,7 +34,7 @@ def find_video_url(desc: str) -> str:
     for term in terms:
         resp = requests.get(
             "https://pixabay.com/api/videos/",
-            params={"key": PIXABAY_API_KEY, "q": term, "per_page": 10}
+            params={"key": PIXABAY_API_KEY, "q": term, "per_page": 5}
         )
         resp.raise_for_status()
         hits.extend(resp.json().get("hits", []))

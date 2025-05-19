@@ -20,17 +20,11 @@ groq_llm = ChatGroq(
 search_chain: Runnable = search_terms_prompt | groq_llm | search_terms_parser
 rank_chain: Runnable = rank_videos_prompt | groq_llm | rank_video_parser
 
-def generate_video_node(state: Dict[str, Any]) -> Dict[str, Any]:
+def find_video_url(desc: str) -> str:
     """
-    LangGraph node: given a scene dict with:
-      - scene_id: int
-      - visual_description: str
-    returns the best Pixabay clip metadata.
+    Helper function to find the best video URL for a scene description.
+    Returns the video URL or None if no video found.
     """
-    # import ipdb; ipdb.set_trace()
-    scene_id = state["scene_id"]
-    desc     = state["visual_description"]
-
     # 1) Generate 3 stock-video queries
     terms = search_chain.invoke({"scene_description": desc}).queries
 
@@ -48,7 +42,7 @@ def generate_video_node(state: Dict[str, Any]) -> Dict[str, Any]:
     unique = {v["id"]: v for v in hits}.values()
     hits = list(unique)
     if not hits:
-        return {"scene_id": scene_id, "error": "no_videos_found"}
+        return None
 
     # 3) Build the `options` JSON for ranking
     options = []
@@ -70,20 +64,39 @@ def generate_video_node(state: Dict[str, Any]) -> Dict[str, Any]:
 
     best = hits[min(best_index, len(hits)-1)]
 
-    # 5) Choose highest-res file
+    # 5) Choose highest-res file and return its URL
     files = best["videos"]
     best_file = max(files.values(), key=lambda f: f["width"]*f["height"])
+    return best_file["url"]
 
-    # 6) Return
-    return {
-        "scene_id"   : scene_id,
-        "search_query": terms[0] if terms else "",
-        "pixabay_id" : best["id"],
-        "page_url"   : best["pageURL"],
-        "video_url"  : best_file["url"],
-        "thumbnail"  : best_file["thumbnail"],
-        "duration_s" : best.get("duration"),
-        "tags"       : best.get("tags"),
-        "resolution" : f"{best_file['width']}x{best_file['height']}",
-        "file_size"  : best_file["size"]
+def generate_video_node(state: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    LangGraph node: given a script with multiple scenes, finds and appends
+    the best matching video URL for each scene.
+    
+    Input state should contain:
+    {
+        "script": {
+            "scenes": [
+                {
+                    "scene_id": int,
+                    "visual_description": str,
+                    ...
+                },
+                ...
+            ]
+        }
     }
+    
+    Returns the script with video_url appended to each scene.
+    """
+    script = state["script"]
+    
+    # Process each scene in the script
+    for scene in script["scenes"]:
+        # Find best video URL for this scene
+        video_url = find_video_url(scene["visual_description"])
+        if video_url:
+            scene["video_url"] = video_url
+    
+    return {"script": script}

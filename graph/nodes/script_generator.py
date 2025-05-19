@@ -3,6 +3,9 @@ from langchain_groq import ChatGroq
 from utils.models import ScriptOutput
 from langchain_core.runnables import Runnable
 from utils.prompt import script_prompt, script_parser
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Initialize the Groq LLM model
 groq_llm = ChatGroq(

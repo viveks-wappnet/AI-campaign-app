@@ -5,6 +5,8 @@ from typing import Any, Dict, List, Optional, Tuple
 from langchain_groq import ChatGroq
 from langchain_core.runnables import Runnable
 from utils.prompt import search_terms_prompt, search_terms_parser, rank_videos_prompt, rank_video_parser
+from utils.video_search import find_video_url
+import logging
 
 load_dotenv()
 
@@ -21,6 +23,7 @@ groq_llm = ChatGroq(
 search_chain: Runnable = search_terms_prompt | groq_llm | search_terms_parser
 rank_chain:   Runnable = rank_videos_prompt | groq_llm | rank_video_parser
 
+logger = logging.getLogger(__name__)
 
 def find_video_url(desc: str) -> str:
     """
@@ -69,19 +72,16 @@ def find_video_url(desc: str) -> str:
 def generate_video_node(state: Dict[str, Any]) -> Dict[str, Any]:
     """
     LangGraph node: takes script with sub_scenes and returns the same structure
-    with `search_query` and `video_url` filled in on each sub_scene.
+    with `video_url` filled in on each sub_scene.
     """
     script = state["script"]
+    logger.info("Finding videos for scenes")
 
     for scene in script["scenes"]:
         for sub in scene["sub_scenes"]:
-            result = find_video_url(sub["visual_description"])
-            if result:
-                url = result
-            else:
-                url = None
-
-            # annotate the sub_scene
+            logger.info(f"Finding video for scene {scene['scene_id']}, sub-scene {sub['sub_id']}")
+            url = find_video_url(sub["visual_description"])
             sub["video_url"] = url
 
+    logger.info("Video search complete")
     return {"script": script}

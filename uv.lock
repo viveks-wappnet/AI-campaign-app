@@ -2010,6 +2010,7 @@ dependencies = [
     { name = "pyht" },
     { name = "requests" },
     { name = "sentence-transformers" },
+    { name = "tqdm" },
     { name = "uvicorn" },
     { name = "websocket-client" },
 ]
@@ -2033,6 +2034,7 @@ requires-dist = [
     { name = "pyht", specifier = ">=0.1.14" },
     { name = "requests", specifier = ">=2.32.3" },
     { name = "sentence-transformers", specifier = ">=4.1.0" },
+    { name = "tqdm", specifier = ">=4.67.1" },
     { name = "uvicorn", specifier = ">=0.29.0" },
     { name = "websocket-client", specifier = ">=1.8.0" },
 ]

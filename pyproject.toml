@@ -24,4 +24,5 @@ dependencies = [
     "langchain-groq>=0.3.2",
     "langchain-core>=0.3.60",
     "moviepy>=2.1.2",
+    "tqdm>=4.67.1",
 ]

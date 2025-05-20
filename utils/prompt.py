@@ -13,40 +13,43 @@ Your task is to help a client transform their campaign idea into a **unique and 
 This video should stand out — use bold visuals, a compelling story arc (even if it's just 4-5 scenes for 30 seconds idea but more scenes for bigger idea), and integrate the brand **organically** into the narrative, not as a hard sell.
 Think cinematic, emotional, funny, surreal, or metaphorical — whatever brings the brand to life in a **fresh and memorable** way.
 
-For each scene, break down the visual description into sub-scenes that can be used to find specific video clips. Each sub-scene should focus on a distinct visual moment or action that can be found in stock video libraries.
+### Structure
 
-Your output should be in JSON format with 6-7 creative scenes (total duration ≈15 seconds), following this structure:
+Break the story into 5–7 creative **scenes**, each consisting of 1–3 **sub-scenes**.  
+Each sub-scene is a concrete **visual moment** with a corresponding **voice-over line** (dialogue). Sub-scenes are the smallest creative units — each will be paired with one stock video and one audio clip.
 
-[
-  {{
-    "scene_id": 1,
-    "duration": "e.g. 5s",
-    "dialogue": "a single line of voice‑over that **fits comfortably** inside that duration (roughly 150 wpm—about 12–15 words for 5 s).",
-    "on_screen_text": "Any text appearing on screen: taglines, punchlines, product names, etc.",
-    "sub_scenes": [
-      {{
-        "sub_id": 1,
-        "duration": "e.g. 3s",
-        "visual_description": "A specific visual moment or action that can be found in stock video. Focus on concrete, searchable elements like locations, actions, objects, or people."
-      }},
-      {{
-        "sub_id": 2,
-        "duration": "e.g. 2s",
-        "visual_description": "Another distinct visual moment or action for the same scene."
-      }}
-    ]
-  }},
-  ...
-]
+You do **not** need to specify durations — we will derive them automatically from the spoken dialogue using TTS.
 
-**Important:** 
-1. Each scene should have 1-3 sub-scenes that break down the visual narrative into specific, searchable moments
-2. Sub-scene descriptions should be concrete and focused on elements that can be found in stock video libraries (locations, actions, objects, people)
-3. Avoid abstract or artistic terms in sub-scene descriptions (e.g., "montage", "cinematic", "emotion")
-4. The `dialogue` length MUST be 3-4 seconds longer than the scene's `duration` when spoken at a natural pace
-5. Each sub-scene should represent a distinct visual moment that can be matched with a stock video clip
-6. Dialogue must be fully spoken **within** the scene’s duration at a natural pace.
-7. Aim for about **150 words per minute** of speech (e.g., ~13 words for 5 s).
+### Output format
+
+Return JSON using this structure(Don't give me the markdown format with the ```JSON```):
+
+{{
+  "scenes": [
+    {{
+      "scene_id": 1,
+      "on_screen_text": "Optional: any tagline or product mention shown on screen",
+      "sub_scenes": [
+        {{
+          "sub_id": 1,
+          "visual_description": "A specific, searchable visual moment (e.g., 'A woman running through a sunflower field at sunset')",
+          "dialogue": "A single, standalone voice-over line that pairs naturally with this moment"
+        }},
+        {{
+          "sub_id": 2,
+          "visual_description": "Another distinct, concrete visual moment",
+          "dialogue": "Another line of voice-over (distinct from the first)"
+        }}
+      ]
+    }},
+    ...
+  ]
+}}
+
+**Important:**
+1. Ensure each `sub_scenes[n].dialogue` contains at least 15-20 words.
+2. Add SSML pause tags like <break time=\\"1.5s\\" /> between logical thoughts for natural pacing. For example: "dialogue": "This smart bottle isn't just eco-friendly—it tracks your hydration, syncs to your phone, and glows when it's time to drink. <break time=\\"1.2s\\" /> With a sleek, modern design, it's your new health companion."
+3. Do not exceed 3 seconds of pause duration.
 
 {format_instructions}
 

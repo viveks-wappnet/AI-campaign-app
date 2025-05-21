@@ -1,6 +1,6 @@
 from langchain.prompts import PromptTemplate
 from langchain.output_parsers import PydanticOutputParser
-from utils.models import ScriptOutput, SearchTermsOutput, RankVideoOutput
+from utils.models import ScriptOutput, SearchTermsOutput, RankVideoOutput, SearchQueryOutput
 
 # 1) Script generation prompt
 script_parser = PydanticOutputParser(pydantic_object=ScriptOutput)
@@ -47,9 +47,11 @@ Return JSON using this structure(Don't give me the markdown format with the ```J
 }}
 
 **Important:**
-1. Ensure each `sub_scenes[n].dialogue` contains at least 15-20 words.
-2. Add SSML pause tags like <break time=\\"1.5s\\" /> between logical thoughts for natural pacing. For example: "dialogue": "This smart bottle isn't just eco-friendly—it tracks your hydration, syncs to your phone, and glows when it's time to drink. <break time=\\"1.2s\\" /> With a sleek, modern design, it's your new health companion."
-3. Do not exceed 3 seconds of pause duration.
+1. Don’t make the `visual_description` too cinematic. If it sounds overly fictional, it will be much harder to find a matching clip in a stock‑video library. Keep it simple. Instead make the dialogues more dramatic and less boring.
+2. Ensure each `sub_scenes[n].dialogue` contains at least 15-20 words.
+3. For pauses in dialogue, use the following format: "First part of dialogue [PAUSE:1.2s] Second part of dialogue"
+4. Do not exceed 3 seconds of pause duration.
+5. DO NOT use SSML tags directly in the dialogue. Instead, use the [PAUSE:X.Xs] format.
 
 {format_instructions}
 
@@ -61,20 +63,16 @@ Client's campaign idea: {user_prompt}
 
 # ——— VIDEO FINDER ———
 # 1) Search terms prompt
-search_terms_parser = PydanticOutputParser(pydantic_object=SearchTermsOutput)
-search_terms_prompt = PromptTemplate(
+search_terms_parser = PydanticOutputParser(pydantic_object=SearchQueryOutput)
+search_terms_prompt  = PromptTemplate(
     template="""
-You need to find ONE perfect video clip that conveys the essence of this scene:
+Generate a single, concise (3–5 word) Shutterstock search query that best matches this scene:
 
 "{scene_description}"
 
-1. If an exact literal match (e.g. a glowing smart water bottle) isn't available on Pixabay, think of **metaphors** or **thematic substitutes** (e.g. water droplets on glass, glowing orb in a dark room, a person taking a refreshing drink).
-2. Focus on the **mood**, **key action**, and **distinctive visuals**.
-3. Generate exactly 3 highly specific search queries.
-4. Return them as a JSON array under the key "queries" (no extra text).
+Focus on the most distinctive visual element and one contextual cue.
 
-Example output:
-{{"queries": ["glowing orb dark room", "water droplets on glass surface", "person drinking water close-up"]}}
+{format_instructions}
 """,
     input_variables=["scene_description"],
     partial_variables={"format_instructions": search_terms_parser.get_format_instructions()}
@@ -84,22 +82,34 @@ Example output:
 rank_video_parser = PydanticOutputParser(pydantic_object=RankVideoOutput)
 rank_videos_prompt = PromptTemplate(
     template="""
-I need to find THE SINGLE BEST video clip that perfectly matches this scene description:
+You are given a scene description and a list of candidate video options in JSON format.
 
-"{scene_description}"
+Your task is to SELECT THE SINGLE BEST video that matches the scene description based on visual match, quality, and relevance.
 
-Here are potential video options from Pixabay (up to 10), formatted as a JSON list under the key "options":
+DO NOT explain or include the full options.
 
-{video_info}
+RETURN ONLY a single JSON object in this exact format:
+{{
+  "best_index": <number>
+}}
 
-Carefully analyze the tags and attributes. Then return ONLY the JSON output, nothing else.
+For example, if the best match is at index 4:
+{{
+  "best_index": 4
+}}
 
-Output format:
-{{"best_index": <zero-based index of best video>}}
+INPUT:
+Scene description: {scene_description}
 
-DO NOT explain your reasoning.
-DO NOT include any text before or after the JSON.
+Video options (JSON under the key "options"): {video_info}
+
+Constraints:
+- The response MUST be valid JSON
+- DO NOT include markdown formatting
+- DO NOT include any explanation or extra text
 """,
     input_variables=["scene_description", "video_info"],
-    partial_variables={"format_instructions": rank_video_parser.get_format_instructions()}
+    partial_variables={
+        "format_instructions": rank_video_parser.get_format_instructions()
+    }
 )
